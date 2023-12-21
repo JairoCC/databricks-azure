@@ -4,6 +4,14 @@
 
 # COMMAND ----------
 
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC #### Read CSV file using the spark dataframe reader
 
@@ -27,7 +35,7 @@ circuits_schema = StructType(fields=[
 
 # COMMAND ----------
 
-circuits_df = spark.read.option("header", True).schema(circuits_schema).csv("dbfs:/mnt/formula1dljc/bronze/circuits.csv")
+circuits_df = spark.read.option("header", True).schema(circuits_schema).csv(f"{bronze_folder_path}/circuits.csv")
 
 # COMMAND ----------
 
@@ -53,11 +61,7 @@ circuits_renamed_df = circuits_selected_df.withColumnRenamed("circuitId","circui
 
 # COMMAND ----------
 
-from pyspark.sql.functions import current_timestamp
-
-# COMMAND ----------
-
-circuts_final_df = circuits_renamed_df.withColumn("ingestion_date", current_timestamp())
+circuts_final_df = add_ingestion_date(circuits_renamed_df)
 
 # COMMAND ----------
 
@@ -66,4 +70,8 @@ circuts_final_df = circuits_renamed_df.withColumn("ingestion_date", current_time
 
 # COMMAND ----------
 
-circuts_final_df.write.mode("overwrite").parquet("/mnt/formula1dljc/silver/circuits")
+circuts_final_df.write.mode("overwrite").parquet(f"{silver_folder_path}/circuits")
+
+# COMMAND ----------
+
+dbutils.notebook.exit("success")

@@ -52,7 +52,7 @@ from pyspark.sql.functions import current_timestamp
 
 # COMMAND ----------
 
-final_df = race_results_df.select("race_year","race_name","race_date","circuit_location","driver_name","driver_number","driver_nationality","team","grid","fastest_lap","race_time","points").withColumn("created_date",current_timestamp())
+final_df = race_results_df.select("race_year","race_name","race_date","circuit_location","driver_name","driver_number","driver_nationality","team","grid","fastest_lap","race_time","points","position").withColumn("created_date",current_timestamp())
 
 # COMMAND ----------
 
@@ -60,4 +60,4 @@ display(final_df.filter("race_year == 2020 AND race_name == 'Abu Dhabi Grand Pri
 
 # COMMAND ----------
 
-final_df.write.mode("overwrite").parquet(f"{gold_folder_path}/race_results")
+final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_presentation.race_results")

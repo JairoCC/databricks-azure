@@ -39,7 +39,7 @@ qualifying_final_df = qualifying_df.withColumnRenamed("qualifyId","qualify_id")\
 
 # COMMAND ----------
 
-qualifying_final_df.write.mode("overwrite").parquet("/mnt/formula1dljc/silver/qualifying")
+qualifying_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.qualifying")
 
 # COMMAND ----------
 

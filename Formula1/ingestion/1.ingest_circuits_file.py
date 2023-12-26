@@ -70,7 +70,7 @@ circuts_final_df = add_ingestion_date(circuits_renamed_df)
 
 # COMMAND ----------
 
-circuts_final_df.write.mode("overwrite").parquet(f"{silver_folder_path}/circuits")
+circuts_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.circuits")
 
 # COMMAND ----------
 

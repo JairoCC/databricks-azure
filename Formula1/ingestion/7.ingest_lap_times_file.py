@@ -36,7 +36,7 @@ lap_times_final_df = lap_times_df.withColumnRenamed("raceId","race_id")\
 
 # COMMAND ----------
 
-lap_times_final_df.write.mode("overwrite").parquet("/mnt/formula1dljc/silver/lap_times")
+lap_times_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.lap_times")
 
 # COMMAND ----------
 

@@ -63,7 +63,7 @@ drivers_final_df = drivers_with_columns_df.drop("url")
 
 # COMMAND ----------
 
-drivers_final_df.write.mode("overwrite").parquet("/mnt/formula1dljc/silver/drivers")
+drivers_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.drivers")
 
 # COMMAND ----------
 

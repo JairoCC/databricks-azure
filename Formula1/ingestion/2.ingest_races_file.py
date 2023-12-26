@@ -67,7 +67,7 @@ races_final_df = races_with_timestamp_df.select("race_id","race_year","round","c
 
 # COMMAND ----------
 
-races_final_df.write.mode("overwrite").partitionBy("race_year").parquet("/mnt/formula1dljc/silver/races")
+races_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.races")
 
 # COMMAND ----------
 

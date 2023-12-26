@@ -45,7 +45,7 @@ results_final_df = result_df.withColumnRenamed("resultId","result_id")\
 
 # COMMAND ----------
 
-results_final_df.write.mode("overwrite").partitionBy("race_id").parquet("/mnt/formula1dljc/silver/results")
+results_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.results")
 
 # COMMAND ----------
 

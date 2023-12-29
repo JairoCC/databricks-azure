@@ -4,6 +4,19 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_file_date","2021-03-21")
+v_file_date = dbutils.widgets.get("p_file_date")
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DateType
 
 # COMMAND ----------
@@ -27,7 +40,7 @@ driver_schema = StructType(fields=[StructField("driverId",IntegerType(), True),
 
 # COMMAND ----------
 
-drivers_df = spark.read.schema(driver_schema).json("/mnt/formula1dljc/bronze/drivers.json")
+drivers_df = spark.read.schema(driver_schema).json(f"{bronze_folder_path}/{v_file_date}/drivers.json")
 
 # COMMAND ----------
 
@@ -47,7 +60,8 @@ from pyspark.sql.functions import col,concat,current_timestamp, lit
 drivers_with_columns_df = drivers_df.withColumnRenamed("driverId","driver_id")\
                                     .withColumnRenamed("driverRef","driver_Ref")\
                                     .withColumn("ingestion_date", current_timestamp())\
-                                    .withColumn("name", concat(col("name.forename"), lit(" "),concat("name.surname")))
+                                    .withColumn("name", concat(col("name.forename"), lit(" "),concat("name.surname")))\
+                                    .withColumn("file_date", lit(v_file_date))
 
 # COMMAND ----------
 

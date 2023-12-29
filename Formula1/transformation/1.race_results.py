@@ -4,7 +4,16 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_file_date","2021-04-18")
+v_file_date = dbutils.widgets.get("p_file_date")
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/common_functions"
 
 # COMMAND ----------
 
@@ -24,7 +33,7 @@ drivers_df = spark.read.parquet(f"{silver_folder_path}/drivers").withColumnRenam
 
 # COMMAND ----------
 
-results_df = spark.read.parquet(f"{silver_folder_path}/results").withColumnRenamed("time","race_time")
+results_df = spark.read.parquet(f"{silver_folder_path}/results").filter(f"file_date = '{v_file_date}'").withColumnRenamed("time","race_time").withColumnRenamed("race_id","result_race_id").withColumnRenamed("file_date","result_file_date")
 
 # COMMAND ----------
 
@@ -42,7 +51,7 @@ race_circuits_df = races_df.join(circuits_df, races_df.circuit_id == circuits_df
 
 # COMMAND ----------
 
-race_results_df = results_df.join(race_circuits_df, results_df.race_id == race_circuits_df.race_id)\
+race_results_df = results_df.join(race_circuits_df, results_df.result_race_id == race_circuits_df.race_id)\
                             .join(drivers_df, results_df.driver_id == drivers_df.driver_id)\
                             .join(contrustor_df, results_df.constructor_id == contrustor_df.constructor_id)
 
@@ -52,12 +61,8 @@ from pyspark.sql.functions import current_timestamp
 
 # COMMAND ----------
 
-final_df = race_results_df.select("race_year","race_name","race_date","circuit_location","driver_name","driver_number","driver_nationality","team","grid","fastest_lap","race_time","points","position").withColumn("created_date",current_timestamp())
+final_df = race_results_df.select("race_id","race_year","race_name","race_date","circuit_location","driver_name","driver_number","driver_nationality","team","grid","fastest_lap","race_time","points","position","result_file_date").withColumn("created_date",current_timestamp()).withColumnRenamed("result_file_date","file_date")
 
 # COMMAND ----------
 
-display(final_df.filter("race_year == 2020 AND race_name == 'Abu Dhabi Grand Prix'").orderBy(final_df.points.desc()))
-
-# COMMAND ----------
-
-final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_presentation.race_results")
+overwrite_partition(final_df, 'f1_presentation', 'race_results', 'race_id')

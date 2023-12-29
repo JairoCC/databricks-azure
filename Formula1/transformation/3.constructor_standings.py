@@ -4,32 +4,38 @@
 
 # COMMAND ----------
 
+from pyspark.sql.window import *
+from pyspark.sql.functions import *
+
+# COMMAND ----------
+
+dbutils.widgets.text("p_file_date","2021-04-18")
+v_file_date = dbutils.widgets.get("p_file_date")
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
 
-race_results_df = spark.read.parquet(f"{gold_folder_path}/race_results")
+# MAGIC %run "../includes/common_functions"
 
 # COMMAND ----------
 
-display(race_results_df)
+race_results_list = spark.read.parquet(f"{gold_folder_path}/race_results")\
+                            .filter(f"file_date = '{v_file_date}'")
 
 # COMMAND ----------
 
-from pyspark.sql.functions import sum, count,when, col
+race_year_list = df_column_to_list(race_results_list,'race_year')
+
+# COMMAND ----------
+
+race_results_df = spark.read.parquet(f"{gold_folder_path}/race_results").filter(col("race_year").isin(race_year_list))
+
+# COMMAND ----------
 
 constructor_standings_df = race_results_df.groupBy("race_year", "team").agg(sum("points").alias("total_points"), count(when(col("position") == 1, True)).alias("wins"))
-
-# COMMAND ----------
-
-display(constructor_standings_df.filter("race_year = 2020"))
-
-# COMMAND ----------
-
-from pyspark.sql.window import Window
-from pyspark.sql.functions import desc, rank
-
-
 
 # COMMAND ----------
 
@@ -41,8 +47,4 @@ final_df = constructor_standings_df.withColumn("rank", rank().over(constructor_r
 
 # COMMAND ----------
 
-display(final_df.filter("race_year = 2020"))
-
-# COMMAND ----------
-
-final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_presentation.constructor_standing")
+overwrite_partition(final_df, 'f1_presentation', 'constructor_standings', 'race_year')

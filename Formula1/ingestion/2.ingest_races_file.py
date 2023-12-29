@@ -4,6 +4,19 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_file_date","2021-03-21")
+v_file_date = dbutils.widgets.get("p_file_date")
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC #### Read CSV file using the spark dataframe reader
 
@@ -31,7 +44,7 @@ races_schema = StructType(fields=[
 
 # COMMAND ----------
 
-races_df = spark.read.option("header", True).schema(races_schema).csv("dbfs:/mnt/formula1dljc/bronze/races.csv")
+races_df = spark.read.option("header", True).schema(races_schema).csv(f"{bronze_folder_path}/{v_file_date}/races.csv")
 
 # COMMAND ----------
 
@@ -58,7 +71,7 @@ races_with_timestamp_df = races_rename_df.withColumn("ingestion_date", current_t
 
 # COMMAND ----------
 
-races_final_df = races_with_timestamp_df.select("race_id","race_year","round","circuit_id","name","ingestion_date","race_timestamp")
+races_final_df = races_with_timestamp_df.select("race_id","race_year","round","circuit_id","name","ingestion_date","race_timestamp").withColumn("file_date", lit(v_file_date))
 
 # COMMAND ----------
 

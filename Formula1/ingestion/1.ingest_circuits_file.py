@@ -23,6 +23,7 @@ v_file_date = dbutils.widgets.get("p_file_date")
 # COMMAND ----------
 
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType
+from pyspark.sql.functions import col, lit
 
 # COMMAND ----------
 
@@ -49,10 +50,6 @@ circuits_df = spark.read.option("header", True).schema(circuits_schema).csv(f"{b
 
 # COMMAND ----------
 
-from pyspark.sql.functions import col, lit
-
-# COMMAND ----------
-
 circuits_selected_df = circuits_df.select(col("circuitId"),col("circuitRef"),col("name"),col("location"),col("country"),col("lat"),col("lng"),col("alt"))
 
 # COMMAND ----------
@@ -75,7 +72,7 @@ circuts_final_df = add_ingestion_date(circuits_renamed_df)
 
 # COMMAND ----------
 
-circuts_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.circuits")
+circuts_final_df.write.mode("overwrite").format("delta").saveAsTable("f1_processed.circuits")
 
 # COMMAND ----------
 

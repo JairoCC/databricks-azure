@@ -62,7 +62,7 @@ constructor_final_df = constructor_drop_df.withColumnRenamed("constructorId","co
 
 # COMMAND ----------
 
-constructor_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.constructors")
+constructor_final_df.write.mode("overwrite").format("delta").saveAsTable("f1_processed.constructors")
 
 # COMMAND ----------
 

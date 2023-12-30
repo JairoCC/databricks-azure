@@ -1,5 +1,5 @@
 # Databricks notebook source
-dbutils.widgets.text("p_file_date","2021-04-18")
+dbutils.widgets.text("p_file_date","2021-03-21")
 v_file_date = dbutils.widgets.get("p_file_date")
 
 # COMMAND ----------
@@ -59,6 +59,10 @@ results_final_df = result_df.withColumnRenamed("resultId","result_id")\
 
 # COMMAND ----------
 
+result_deduped_df = results_final_df.dropDuplicates(['race_id','driver_id'])
+
+# COMMAND ----------
+
 #for race_id_list in results_final_df.select("race_id").distinct().collect():
 #    if (spark._jsparkSession.catalog().tableExists("f1_processed.results")):
 #        spark.sql(f"ALTER TABLE f1_processed.results DROP IF EXISTS PARTITION (race_id = {race_id_list.race_id})")
@@ -69,7 +73,12 @@ results_final_df = result_df.withColumnRenamed("resultId","result_id")\
 
 # COMMAND ----------
 
-overwrite_partition(results_final_df, 'f1_processed', 'results', 'race_id')
+#overwrite_partition(results_final_df, 'f1_processed', 'results', 'race_id')
+
+# COMMAND ----------
+
+merge_condition = "tgt.result_id = src.result_id AND tgt.race_id = src.race_id"
+merge_delta_data(result_deduped_df, 'f1_processed', 'results', silver_folder_path, merge_condition, 'race_id')
 
 # COMMAND ----------
 
